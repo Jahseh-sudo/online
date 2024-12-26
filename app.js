@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// Initialize Express App
 const app = express();
 
 // Middleware
@@ -12,10 +11,10 @@ app.use(bodyParser.json());
 
 // MySQL Database Connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST, // Environment variable for host
-  user: process.env.DB_USER, // Environment variable for username
-  password: process.env.DB_PASSWORD, // Environment variable for password
-  database: process.env.DB_NAME, // Environment variable for database name
+  host: process.env.DB_HOST, // MySQL host
+  user: process.env.DB_USER, // MySQL username
+  password: process.env.DB_PASSWORD, // MySQL password
+  database: process.env.DB_NAME, // Database name
 });
 
 db.connect((err) => {
@@ -26,10 +25,10 @@ db.connect((err) => {
   console.log('Connected to MySQL database');
 });
 
-// API Route: Add a product
-app.post('/api/products', (req, res) => {
-  console.log('Request Body:', req.body);
+// API Routes
 
+// Add a Product
+app.post('/api/products', (req, res) => {
   const { productName, description, price, contactInfo, whatsappLink, category, image } = req.body;
 
   // Validate input
@@ -37,7 +36,6 @@ app.post('/api/products', (req, res) => {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-  // SQL Query to insert a product
   const query = `
     INSERT INTO products (productName, description, price, contactInfo, whatsappLink, category, image)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -49,11 +47,11 @@ app.post('/api/products', (req, res) => {
       console.error('Error adding product:', err);
       return res.status(500).json({ message: 'Failed to add product' });
     }
-    res.status(200).json({ message: 'Product added successfully', productId: result.insertId });
+    res.status(201).json({ message: 'Product added successfully', productId: result.insertId });
   });
 });
 
-// API Route: Get all products
+// Get All Products
 app.get('/api/products', (req, res) => {
   const query = 'SELECT * FROM products';
 
@@ -66,7 +64,7 @@ app.get('/api/products', (req, res) => {
   });
 });
 
-// API Route: Get a single product by ID
+// Get a Product by ID
 app.get('/api/products/:id', (req, res) => {
   const { id } = req.params;
 
@@ -84,7 +82,7 @@ app.get('/api/products/:id', (req, res) => {
   });
 });
 
-// API Route: Delete a product by ID
+// Delete a Product by ID
 app.delete('/api/products/:id', (req, res) => {
   const { id } = req.params;
 
