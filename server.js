@@ -11,13 +11,14 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MySQL Database Connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST, // Environment variable for host
-  user: process.env.DB_USER, // Environment variable for username
-  password: process.env.DB_PASSWORD, // Environment variable for password
-  database: process.env.DB_NAME, // Environment variable for database name
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',  // Replace with your MySQL username
+  password: 'Spydeer8@',  // Replace with your MySQL password
+  database: 'campus_trade', // Environment variable for database name
 });
 
+// Connect to the Database
 db.connect((err) => {
   if (err) {
     console.error('Error connecting to the database:', err);
@@ -28,8 +29,6 @@ db.connect((err) => {
 
 // API Route: Add a product
 app.post('/api/products', (req, res) => {
-  console.log('Request Body:', req.body);
-
   const { productName, description, price, contactInfo, whatsappLink, category, image } = req.body;
 
   // Validate input
@@ -102,5 +101,8 @@ app.delete('/api/products/:id', (req, res) => {
   });
 });
 
-// Export the app for Vercel
-module.exports = app;
+// Start the Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
