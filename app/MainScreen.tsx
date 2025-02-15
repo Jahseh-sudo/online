@@ -15,9 +15,9 @@ import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useWindowDimensions } from 'react-native';
 
 const mockApiData = [
-  { id: '1', title: 'Premium Product 1', image: require('../assets/images/premium1.png'), price: '$999' },
-  { id: '2', title: 'Premium Product 2', image: require('../assets/images/premium2.png'), price: '$1199' },
-  { id: '3', title: 'Standard Product 1', image: require('../assets/images/standard1.png'), price: '$499' },
+  { id: '1', title: 'Premium Product 1', image: require('../assets/images/product1.png'), price: '$999' },
+  { id: '2', title: 'Premium Product 2', image: require('../assets/images/product2.png'), price: '$1199' },
+  { id: '3', title: 'Standard Product 1', image: require('../assets/images/product3.png'), price: '$499' },
 ];
 
 const categories = [
@@ -35,12 +35,12 @@ export default function MainScreen() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [animation] = useState(new Animated.Value(2));
-  const { width, height } = useWindowDimensions();
+  const [profilePicture, setProfilePicture] = useState(require('../assets/images/default-profile.png'));
+
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
-    setTimeout(() => {
-      setProducts(mockApiData);
-    }, 1000);
+    setTimeout(() => setProducts(mockApiData), 1000);
 
     Animated.loop(
       Animated.sequence([
@@ -58,6 +58,10 @@ export default function MainScreen() {
     ).start();
   }, [animation]);
 
+  useEffect(() => {
+    setProfilePicture(require('../assets/images/updated-profile.png'));
+  }, []);
+
   const animatedStyle = {
     transform: [
       {
@@ -71,17 +75,26 @@ export default function MainScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.watermark}>CampusTrade</Text>
+      {/* Banner Image */}
+      <Image source={require('../assets/images/promo2.png')} style={styles.bannerImage} />
+
+      {/* Profile Icon */}
+      <TouchableOpacity
+        style={styles.profileIconContainer}
+        onPress={() => router.push('../account')}
+      >
+        <Image source={profilePicture} style={styles.profileIcon} />
+      </TouchableOpacity>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search"
+          placeholder="Search for products, categories..."
           placeholderTextColor="#999"
         />
         <TouchableOpacity>
-          <Ionicons name="ios-filter" size={24} color="#000" />
+          <Ionicons name="ios-search" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
@@ -89,7 +102,7 @@ export default function MainScreen() {
       <FlatList
         horizontal
         data={categories}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => router.push(item.screen)}
@@ -119,39 +132,17 @@ export default function MainScreen() {
         contentContainerStyle={styles.productGrid}
       />
 
-      {/* Social Media Button */}
-      <TouchableOpacity
-        style={styles.socialMediaButton}
-        onPress={() => router.push('../SocialMediaScreen')}
-      >
-        <Image
-          source={require('../assets/images/socialMediaLogo.png')}
-          style={styles.socialMediaIcon}
-        />
-      </TouchableOpacity>
-
       {/* Footer Navigation */}
       <View style={styles.footer}>
-        <FooterIconButton
-          icon={<MaterialIcons name="home" size={24} color="#fff" />}
-          onPress={() => router.push('../MainScreen')}
-        />
-        <FooterIconButton
-          icon={<FontAwesome5 name="user" size={24} color="#fff" />}
-          onPress={() => router.push('../payment')}
-        />
-        <FooterIconButton
-          icon={<Ionicons name="add-circle" size={24} color="#fff" />}
-          onPress={() => router.push('../addProduct')}
-        />
-        <FooterIconButton
-          icon={<Ionicons name="cart" size={24} color="#fff" />}
-          onPress={() => router.push('../cart')}
-        />
-        <FooterIconButton
-          icon={<Ionicons name="settings" size={24} color="#fff" />}
-          onPress={() => router.push('../SettingsScreen')}
-        />
+        {[ 
+          { icon: <MaterialIcons name="home" size={24} color="#000" />, route: '../MainScreen' },
+          { icon: <FontAwesome5 name="user" size={24} color="#000" />, route: '../payment' },
+          { icon: <Ionicons name="add-circle" size={24} color="#000" />, route: '../addProduct' },
+          { icon: <Ionicons name="cart" size={24} color="#000" />, route: '../ProductList' },
+          { icon: <Ionicons name="settings" size={24} color="#000" />, route: '../SettingsScreen' },
+        ].map(({ icon, route }, index) => (
+          <FooterIconButton key={index} icon={icon} onPress={() => router.push(route)} />
+        ))}
       </View>
     </View>
   );
@@ -166,32 +157,44 @@ const FooterIconButton = ({ icon, onPress }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#341111',
-    paddingTop: 30,
+    backgroundColor: '#f8f8f8',
+    paddingTop: 20,
   },
-  watermark: {
+  bannerImage: {
+    width: '100%',
+    height: 120,
+    resizeMode: 'cover',
+    marginBottom: 10,
+  },
+  profileIconContainer: {
     position: 'absolute',
-    top: Dimensions.get('window').height / 2,
-    left: Dimensions.get('window').width / 3,
-    fontSize: 50,
-    color: 'rgba(255, 255, 255, 0.1)',
-    zIndex: -1,
+    top: 15,
+    right: 15,
+  },
+  profileIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   searchContainer: {
     flexDirection: 'row',
-    marginHorizontal: 10,
-    marginVertical: 15,
+    marginHorizontal: 15,
+    marginVertical: 10,
     backgroundColor: '#fff',
-    borderRadius: 25,
+    borderRadius: 20,
     paddingHorizontal: 15,
     alignItems: 'center',
+    elevation: 5,
   },
   searchInput: {
     flex: 1,
+    fontSize: 16,
     paddingVertical: 10,
+    color: '#000',
   },
   categories: {
     paddingHorizontal: 10,
+    marginBottom: 15,
   },
   categoryItem: {
     alignItems: 'center',
@@ -200,16 +203,16 @@ const styles = StyleSheet.create({
   categoryImage: {
     width: 60,
     height: 60,
-    borderRadius: 15,
-    backgroundColor: '#ffffff',
+    marginBottom: 5,
+    borderRadius: 30,
   },
   categoryLabel: {
     fontSize: 12,
-    color: '#fff',
-    marginTop: 5,
+    color: '#000',
   },
   productGrid: {
     paddingHorizontal: 10,
+    paddingBottom: 20,
   },
   gridColumn: {
     justifyContent: 'space-between',
@@ -217,47 +220,38 @@ const styles = StyleSheet.create({
   productCard: {
     flex: 1,
     margin: 5,
-    backgroundColor: '#FFF',
+    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
     alignItems: 'center',
+    elevation: 3,
   },
   productImage: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+    width: 80,
+    height: 80,
+    marginBottom: 5,
+    borderRadius: 10,
   },
   productTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 5,
   },
   productPrice: {
-    fontSize: 12,
-    color: 'green',
-  },
-  socialMediaButton: {
-    position: 'absolute',
-    right: 20,
-    top: Dimensions.get('window').height / 2,
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    padding: 10,
-    elevation: 5,
-    zIndex: 10,
-  },
-  socialMediaIcon: {
-    width: 40,
-    height: 40,
+    fontSize: 14,
+    color: '#ff5252',
+    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 10,
-    backgroundColor: '#622222',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderColor: '#e0e0e0',
   },
   footerIconButton: {
-    padding: 10,
     alignItems: 'center',
   },
 });

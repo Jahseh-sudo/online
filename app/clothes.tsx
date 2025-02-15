@@ -109,7 +109,7 @@ export default function ClothesSection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3B1F1F',
+    backgroundColor: '#1C1C1E',
     padding: 20,
   },
   productImage: {
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   orderButton: {
     flex: 1,
-    backgroundColor: '#00C851',
+    backgroundColor: '#FFA500',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   orderIcon: {
-    backgroundColor: '#00C851',
+    backgroundColor: '#FFA500',
     padding: 15,
     borderRadius: 10,
   },
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addCommentButton: {
-    backgroundColor: '#00C851',
+    backgroundColor: '#FFA500',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',

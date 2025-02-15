@@ -1,149 +1,147 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
-export default function LoginScreen() {
+const LoginScreen = () => {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = () => {
-    setError(''); // Clear previous error
-    setLoading(true);
-
-    // Mock API login call
-    setTimeout(() => {
-      if (email === 'test@example.com' && password === 'password') {
-        router.push('../MainScreen'); // Redirect to MainScreen on success
-      } else {
-        setError('Invalid email or password.');
-      }
-      setLoading(false);
-    }, 2000);
-  };
 
   return (
-    <LinearGradient
-      colors={['#341111', '#967575']} // Gradient colors for background
-      style={styles.container}
-    >
-      <Text style={styles.title}>Login to Your Account</Text>
-      <Text style={styles.subtitle}>
-        Don't have an account?{' '}
-        <Text
-          style={styles.linkText}
-          onPress={() => router.push('../SignUpScreen')} // Navigate to SignUp screen
-        >
-          Sign up here.
-        </Text>
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Hello Again!</Text>
+      <Text style={styles.subtitle}>Welcome back you've been missed!</Text>
 
-      <Text style={styles.label}>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="hello@reallygreatsite.com"
-        keyboardType="email-address"
-        placeholderTextColor="#ccc"
-        value={email}
-        onChangeText={setEmail}
-        accessible={true}
-        accessibilityLabel="Email Input"
-      />
+      <View style={styles.inputContainer}>
+        <TextInput style={styles.input} placeholder="Enter email" />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry={true}
+          />
+          <Ionicons name="eye-off" size={20} color="#999" style={styles.icon} />
+        </View>
+        <TouchableOpacity>
+          <Text style={styles.recoveryText}>Recovery Password</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="******"
-        secureTextEntry={true}
-        placeholderTextColor="#ccc"
-        value={password}
-        onChangeText={setPassword}
-        accessible={true}
-        accessibilityLabel="Password Input"
-      />
-
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
+      {/* Navigate to the MainScreen */}
       <TouchableOpacity
-        style={styles.button}
-        onPress={handleLogin}
-        disabled={loading}
+        style={styles.signInButton}
+        onPress={() => router.push("../MainScreen")}
       >
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Log In</Text>
-        )}
+        <Text style={styles.signInText}>Sign in</Text>
       </TouchableOpacity>
-    </LinearGradient>
+
+      <Text style={styles.orText}>or continue with</Text>
+
+      <View style={styles.socialContainer}>
+        <TouchableOpacity>
+          <Ionicons name="logo-google" size={32} color="#EA4335" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="logo-apple" size={32} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="logo-facebook" size={32} color="#3b5998" />
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={() => router.push("../SignUpScreen")}>
+        <Text style={styles.signUpText}>
+          Not a member? <Text style={styles.signUpLink}>Register</Text>
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 28,
-    color: 'white',
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 14,
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: "center",
+    color: "#555",
+    marginBottom: 30,
   },
-  linkText: {
-    color: '#FFD700',
-    textDecorationLine: 'underline',
-    fontWeight: 'bold',
-  },
-  label: {
-    alignSelf: 'flex-start',
-    marginLeft: '10%',
-    color: 'white',
-    marginBottom: 5,
-    fontSize: 14,
+  inputContainer: {
+    width: "100%",
   },
   input: {
-    width: '80%',
-    height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "#f2f2f2",
+    padding: 15,
     borderRadius: 10,
-    paddingHorizontal: 10,
     marginBottom: 15,
-    color: 'white',
+    fontSize: 16,
+    width: "100%",
   },
-  errorText: {
-    color: 'red',
+  passwordContainer: {
+    position: "relative",
+    width: "100%",
+  },
+  icon: {
+    position: "absolute",
+    right: 15,
+    top: 15,
+  },
+  recoveryText: {
+    textAlign: "right",
+    color: "#007bff",
     fontSize: 14,
-    marginTop: 5,
-    textAlign: 'center',
+    marginTop: -10,
+    marginBottom: 20,
   },
-  button: {
-    width: '80%',
-    height: 50,
-    backgroundColor: '#228B22', // Darker green for a more professional look
-    justifyContent: 'center',
-    alignItems: 'center',
+  signInButton: {
+    backgroundColor: "#FF5722",
+    padding: 15,
     borderRadius: 10,
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  signInText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  orText: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 20,
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "60%",
+    marginBottom: 20,
+  },
+  signUpText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  signUpLink: {
+    color: "#FF5722",
+    fontWeight: "bold",
   },
 });
+
+export default LoginScreen;

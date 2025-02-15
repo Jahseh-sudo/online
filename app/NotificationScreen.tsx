@@ -1,106 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Switch,
-  Alert,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, Alert, StyleSheet } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
-export default function NotificationsScreen() {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const [expoPushToken, setExpoPushToken] = useState('');
-  const [notificationListener, setNotificationListener] = useState<any>(null);
+// Configure how notifications are handled (foreground behavior)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
+export default function NotificationScreen() {
+  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+  const [notification, setNotification] = useState<any>(null);
+  const notificationListener = React.useRef<any>();
+  const responseListener = React.useRef<any>();
+
+  // Request permissions and set up notification listeners
   useEffect(() => {
-    const requestPermissions = async () => {
-      try {
-        const { status } = await Notifications.requestPermissionsAsync();
-        if (status === 'granted') {
-          const token = await Notifications.getExpoPushTokenAsync();
-          setExpoPushToken(token.data);
-        } else {
-          Alert.alert(
-            'Permission Denied',
-            'Enable notification permissions to receive alerts.'
-          );
-        }
-      } catch (error) {
-        console.error('Failed to get push token:', error);
-      }
-    };
+    registerForPushNotificationsAsync().then((token) => {
+      if (token) setExpoPushToken(token);
+    });
 
-    requestPermissions();
+    // Listener for when a notification is received while the app is in the foreground
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      setNotification(notification);
+    });
 
+    // Listener for when a user interacts with a notification (e.g., taps it)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('Notification response received:', response);
+    });
+
+    // Cleanup listeners when the component is unmounted
     return () => {
-      // Cleanup listeners on component unmount
-      if (notificationListener) {
-        Notifications.removeNotificationSubscription(notificationListener);
-      }
+      if (notificationListener.current) Notifications.removeNotificationSubscription(notificationListener.current);
+      if (responseListener.current) Notifications.removeNotificationSubscription(responseListener.current);
     };
-  }, [notificationListener]);
+  }, []);
 
-  const toggleSwitch = async () => {
-    if (isEnabled) {
-      if (notificationListener) {
-        Notifications.removeNotificationSubscription(notificationListener);
-        setNotificationListener(null);
+  // Register for push notifications and get Expo push token
+  async function registerForPushNotificationsAsync(): Promise<string | null> {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
       }
+
+      if (finalStatus !== 'granted') {
+        Alert.alert('Failed to get push token for notifications!');
+        return null;
+      }
+
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log('Expo Push Token:', token);
     } else {
-      const listener = Notifications.addNotificationReceivedListener(handleNotification);
-      setNotificationListener(listener);
-    }
-    setIsEnabled((prev) => !prev);
-  };
-
-  const handleNotification = (notification: Notifications.Notification) => {
-    Alert.alert('Notification Received', notification.request.content.body || '');
-  };
-
-  const sendTestNotification = async () => {
-    if (!expoPushToken) {
-      Alert.alert('No Push Token', 'Unable to send notification. Check permissions.');
-      return;
+      Alert.alert('Must use physical device for Push Notifications');
     }
 
-    try {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'Test Notification',
-          body: 'This is a test notification.',
-        },
-        trigger: { seconds: 2 },
-      });
-      Alert.alert('Notification Scheduled', 'Test notification will appear shortly.');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to send notification.');
-      console.error('Notification error:', error);
-    }
-  };
+    return token;
+  }
+
+  // Trigger a test notification
+  async function sendTestNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Hello from CampusTrade!',
+        body: 'This is a test notification to check push notifications.',
+        data: { screen: 'Home' }, // Example: Add custom data for navigation or actions
+      },
+      trigger: { seconds: 2 }, // Delay notification by 2 seconds
+    });
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Notification Settings</Text>
+      <Text style={styles.title}>CampusTrade Push Notifications</Text>
 
-      <View style={styles.notificationSwitchContainer}>
-        <Text style={styles.label}>Enable Notifications:</Text>
-        <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-          onValueChange={toggleSwitch}
-          value={isEnabled}
-        />
+      <Button title="Send Test Notification" onPress={sendTestNotification} />
+
+      <View style={styles.tokenContainer}>
+        <Text style={styles.subtitle}>Expo Push Token:</Text>
+        <Text style={styles.token}>{expoPushToken || 'Fetching...'}</Text>
       </View>
 
-      <TouchableOpacity style={styles.testButton} onPress={sendTestNotification}>
-        <Text style={styles.buttonText}>Send Test Notification</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.tokenLabel}>
-        Expo Push Token: {expoPushToken || 'Loading...'}
-      </Text>
+      {notification && (
+        <View style={styles.notification}>
+          <Text style={styles.subtitle}>Last Notification:</Text>
+          <Text>{notification?.request?.content?.title}</Text>
+          <Text>{notification?.request?.content?.body}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -111,37 +107,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
-  header: {
+  title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
-  notificationSwitchContainer: {
-    flexDirection: 'row',
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 5,
+  },
+  tokenContainer: {
+    marginTop: 20,
     alignItems: 'center',
-    marginBottom: 20,
   },
-  label: {
-    fontSize: 16,
-    marginRight: 10,
-  },
-  testButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  token: {
+    fontSize: 12,
+    color: 'gray',
     textAlign: 'center',
+    marginTop: 5,
   },
-  tokenLabel: {
-    fontSize: 14,
-    color: '#555',
-    textAlign: 'center',
+  notification: {
+    marginTop: 20,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+    width: '100%',
   },
 });

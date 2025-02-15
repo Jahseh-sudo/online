@@ -1,77 +1,162 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Video } from 'expo-av'; // Import the Video component from Expo
-import { useRouter } from 'expo-router'; // Import the router for navigation
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Index() {
-  const router = useRouter(); // Initialize the router to handle navigation
+const WelcomeScreen = () => {
+  const router = useRouter();
 
-  // Function to navigate to the signup screen
-  const handleGetStarted = () => {
-    router.push('../SignUpScreen'); // Use a relative path to navigate
-  };
+  const titleAnimation = useRef(new Animated.Value(0)).current;
+  const buttonAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Animate title
+    Animated.timing(titleAnimation, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start();
+
+    // Animate buttons
+    Animated.timing(buttonAnimation, {
+      toValue: 1,
+      delay: 1000,
+      duration: 1500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   return (
     <View style={styles.container}>
-      {/* Background Video */}
-      <Video
-        source={require('../assets/videos/welcome-animation.mp4')} // Video source
-        style={styles.backgroundVideo} // Styles the background video
-        shouldPlay // Automatically plays the video
-        isLooping // Loops the video
-        resizeMode="cover" // Ensures video covers the whole screen
-        onError={(error) => console.error("Video playback error:", error)} // Handles video errors
+      {/* Animated Image */}
+      <Image
+        source={require("../assets/images/welcome-image.png")} // Replace with your image
+        style={styles.image}
       />
-      
-      {/* Overlay with the 'Get Started' button */}
-      <View style={styles.overlay}>
+
+      {/* Animated Title */}
+      <Animated.Text
+        style={[
+          styles.title,
+          {
+            opacity: titleAnimation,
+            transform: [
+              {
+                translateY: titleAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        Campus Trade
+      </Animated.Text>
+
+      {/* Subtitle */}
+      <Text style={styles.subtitle}>
+        Discover Your Best Products Here
+      </Text>
+      <Text style={styles.description}>
+        Explore the most exciting products tailored to your interests and needs.
+      </Text>
+
+      {/* Buttons */}
+      <Animated.View
+        style={[
+          styles.buttonContainer,
+          {
+            opacity: buttonAnimation,
+            transform: [
+              {
+                translateY: buttonAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         <TouchableOpacity
-          style={styles.button}
-          onPress={handleGetStarted} // On press, navigate to signup screen
-          accessibilityLabel="Get Started Button"
-          accessibilityHint="Navigates to the signup screen"
+          style={styles.signupButton}
+          onPress={() => router.push("../SignUpScreen")}
         >
-          <Text style={styles.buttonText}>Get Started</Text>
+          <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
-      </View>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={() => router.push("../LoginScreen")}
+        >
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000', // Fallback background color in case video doesn't load
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
   },
-  backgroundVideo: {
-    position: 'absolute', // Ensures the video stays in the background
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
+  image: {
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+    marginBottom: 20,
   },
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end', // Align the button at the bottom
-    alignItems: 'center', // Center the button horizontally
-    paddingBottom: 80, // Space for the button
-    backgroundColor: 'rgba(0, 0, 0, 0.3)', // Dark overlay for better text contrast
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#FF5722",
+    textAlign: "center",
+    marginBottom: 10,
   },
-  button: {
-    backgroundColor: '#7ed957', // Green button color
-    padding: 15,
-    borderRadius: 8, // Rounded corners for the button
-    width: '70%', // Button takes up 70% of the width
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 3, // Shadow effect for Android
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  buttonContainer: {
+    width: "100%",
+  },
+  signupButton: {
+    backgroundColor: "#FF5722",
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  loginButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff', // White text
-    fontSize: 18, // Text size
-    fontWeight: 'bold', // Bold text
-    textAlign: 'center', // Center the text
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
+
+export default WelcomeScreen;

@@ -19,7 +19,7 @@ const connection = mysql.createConnection({
 });
 
 // Connect to the Database
-db.connect((err) => {
+connection.connect((err) => {
   if (err) {
     console.error('Error connecting to the database:', err);
     return;
@@ -43,7 +43,7 @@ app.post('/api/products', (req, res) => {
   `;
   const values = [productName, description, price, contactInfo, whatsappLink, category, image];
 
-  db.query(query, values, (err, result) => {
+  connection.query(query, values, (err, result) => {
     if (err) {
       console.error('Error adding product:', err);
       return res.status(500).json({ message: 'Failed to add product' });
@@ -56,7 +56,7 @@ app.post('/api/products', (req, res) => {
 app.get('/api/products', (req, res) => {
   const query = 'SELECT * FROM products';
 
-  db.query(query, (err, results) => {
+  connection.query(query, (err, results) => {
     if (err) {
       console.error('Error fetching products:', err);
       return res.status(500).json({ message: 'Failed to fetch products' });
@@ -71,7 +71,7 @@ app.get('/api/products/:id', (req, res) => {
 
   const query = 'SELECT * FROM products WHERE id = ?';
 
-  db.query(query, [id], (err, results) => {
+  connection.query(query, [id], (err, results) => {
     if (err) {
       console.error('Error fetching product:', err);
       return res.status(500).json({ message: 'Failed to fetch product' });
@@ -89,7 +89,7 @@ app.delete('/api/products/:id', (req, res) => {
 
   const query = 'DELETE FROM products WHERE id = ?';
 
-  db.query(query, [id], (err, result) => {
+  connection.query(query, [id], (err, result) => {
     if (err) {
       console.error('Error deleting product:', err);
       return res.status(500).json({ message: 'Failed to delete product' });

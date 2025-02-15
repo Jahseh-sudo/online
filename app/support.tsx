@@ -1,20 +1,29 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, ImageBackground } from 'react-native';
-import { Link } from 'expo-router';
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Linking,
+  ImageBackground,
+} from "react-native";
+import { Link } from "expo-router";
 
 export default function SupportPage() {
   const handlePaystackSupport = () => {
-    Linking.openURL('https://wa.me/+2348086615774'); // Replace with your Paystack link
+    Linking.openURL("https://wa.me/+2348086615774"); // Replace with your Paystack link
   };
 
   const handlePaypalSupport = () => {
-    Linking.openURL('https://wa.me/+2348086615774'); // Replace with your PayPal link
+    Linking.openURL("https://wa.me/+2348086615774"); // Replace with your PayPal link
   };
 
   return (
     <ImageBackground
       style={styles.container}
-      source={{ uri: 'https://via.placeholder.com/150/967575/341111?text=CampusTrade' }} // Add a placeholder watermark or custom image.
+      source={{
+        uri: "https://via.placeholder.com/150/967575/341111?text=CampusTrade",
+      }}
     >
       <Text style={styles.header}>Support & Gifting</Text>
       <Text style={styles.subText}>We appreciate your support!</Text>
@@ -27,8 +36,12 @@ export default function SupportPage() {
         <Text style={styles.buttonText}>Support via PayPal</Text>
       </TouchableOpacity>
 
+      <Link href="../CryptoScreen" style={styles.link}>
+        <Text style={styles.linkText}>Support via Crypto</Text>
+      </Link>
+
       <Link href="/" style={styles.link}>
-        <Text>Back to Home</Text>
+        <Text style={styles.linkText}>Back to Home</Text>
       </Link>
     </ImageBackground>
   );
@@ -37,38 +50,41 @@ export default function SupportPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: 'rgba(150, 117, 117, 0.85)',
+    backgroundColor: "#1C1C1E",
   },
   header: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFF',
+    fontWeight: "bold",
+    color: "#FFF",
     marginBottom: 10,
   },
   subText: {
     fontSize: 16,
-    color: '#F5F5F5',
+    color: "#F5F5F5",
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#341111',
+    backgroundColor: "#FFA500",
     padding: 15,
     borderRadius: 10,
     marginVertical: 10,
-    width: '80%',
-    alignItems: 'center',
+    width: "80%",
+    alignItems: "center",
   },
   buttonText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   link: {
     marginTop: 20,
-    color: '#FFF',
-    textDecorationLine: 'underline',
+  },
+  linkText: {
+    color: "#FFA500",
+    textDecorationLine: "underline",
+    fontSize: 16,
   },
 });

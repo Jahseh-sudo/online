@@ -1,185 +1,146 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
-export default function SignUpScreen() {
+const SignUpScreen = () => {
   const router = useRouter();
+  const [password, setPassword] = useState("");
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-
-  const validateInputs = () => {
-    if (!name || !email || !password) {
-      setError('All fields are required.');
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email.');
-      return false;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      return false;
-    }
-    setError('');
-    return true;
-  };
-
-  // Memoize the validation result
-  const isFormValid = useMemo(() => validateInputs(), [name, email, password]);
-
-  const handleSignUp = () => {
-    if (isFormValid) {
-      router.push('../MainScreen');
-    }
-  };
+  const isPasswordValid = password.length >= 8; // Password must have at least 8 characters
 
   return (
-    <LinearGradient
-      colors={['#341111', '#967575']}
-      style={styles.container}
-    >
-      <Text style={styles.title}>Create New Account</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Hello There!</Text>
       <Text style={styles.subtitle}>
-        Already Registered?{' '}
-        <Text
-          style={styles.linkText}
-          onPress={() => router.push('../LoginScreen')}
-        >
-          Log in here.
-        </Text>
+        Join Us to Unlock a World of Shopping Delights!
       </Text>
 
-      <Text style={styles.label}>Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Jiara Martins"
-        placeholderTextColor="#ccc"
-        value={name}
-        onChangeText={setName}
-      />
+      <View style={styles.inputContainer}>
+        <TextInput style={styles.input} placeholder="Enter name" />
+        <TextInput style={styles.input} placeholder="Enter email" />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password (min. 8 characters)"
+            secureTextEntry={true}
+            onChangeText={setPassword}
+          />
+          <Ionicons name="eye-off" size={20} color="#999" style={styles.icon} />
+        </View>
+      </View>
 
-      <Text style={styles.label}>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="hello@reallygreatsite.com"
-        keyboardType="email-address"
-        placeholderTextColor="#ccc"
-        value={email}
-        onChangeText={setEmail}
-      />
+      {/* Register Button */}
+      <TouchableOpacity
+        style={[
+          styles.registerButton,
+          { backgroundColor: isPasswordValid ? "#ff5722" : "#ccc" },
+        ]}
+        onPress={() => router.push("../terms")}
+        disabled={!isPasswordValid}
+      >
+        <Text style={styles.registerText}>Register</Text>
+      </TouchableOpacity>
 
-      <Text style={styles.label}>Password</Text>
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="******"
-          secureTextEntry={!showPassword}
-          placeholderTextColor="#ccc"
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TouchableOpacity
-          onPress={() => setShowPassword(!showPassword)}
-          style={styles.showPasswordToggle}
-        >
-          <Text style={styles.toggleText}>
-            {showPassword ? 'Hide' : 'Show'}
-          </Text>
+      <Text style={styles.orText}>or continue with</Text>
+
+      <View style={styles.socialContainer}>
+        <TouchableOpacity>
+          <Ionicons name="logo-google" size={32} color="#EA4335" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="logo-apple" size={32} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="logo-facebook" size={32} color="#3b5998" />
         </TouchableOpacity>
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-      <TouchableOpacity
-        style={[styles.button, { opacity: isFormValid ? 1 : 0.6 }]}
-        onPress={handleSignUp}
-        disabled={!isFormValid}
-      >
-        <Text style={styles.buttonText}>Sign Up</Text>
+      <TouchableOpacity onPress={() => router.push("../LoginScreen")}>
+        <Text style={styles.signinText}>
+          Already a member? <Text style={styles.signinLink}>Sign in</Text>
+        </Text>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 28,
-    color: 'white',
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
+    color: "#000",
   },
   subtitle: {
-    fontSize: 14,
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: "center",
+    color: "#555",
+    marginBottom: 30,
   },
-  linkText: {
-    color: '#FFD700',
-    textDecorationLine: 'underline',
-    fontWeight: 'bold',
-  },
-  label: {
-    alignSelf: 'flex-start',
-    marginLeft: '10%',
-    color: 'white',
-    marginBottom: 5,
-    fontSize: 14,
+  inputContainer: {
+    width: "100%",
   },
   input: {
-    width: '80%',
-    height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "#f2f2f2",
+    padding: 15,
     borderRadius: 10,
-    paddingHorizontal: 10,
     marginBottom: 15,
-    color: 'white',
+    fontSize: 16,
   },
   passwordContainer: {
-    width: '80%',
-    position: 'relative',
+    position: "relative",
+    width: "100%",
   },
-  showPasswordToggle: {
-    position: 'absolute',
-    right: 10,
+  icon: {
+    position: "absolute",
+    right: 15,
     top: 15,
   },
-  toggleText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  errorText: {
-    color: '#FFD700',
-    marginBottom: 10,
-  },
-  button: {
-    width: '80%',
-    height: 50,
-    backgroundColor: '#228B22',
-    justifyContent: 'center',
-    alignItems: 'center',
+  registerButton: {
+    padding: 15,
     borderRadius: 10,
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 20,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  registerText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  orText: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 20,
+  },
+  socialContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "60%",
+    marginBottom: 20,
+  },
+  signinText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  signinLink: {
+    color: "#ff5722",
+    fontWeight: "bold",
   },
 });
+
+export default SignUpScreen;

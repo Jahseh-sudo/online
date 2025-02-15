@@ -1,69 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   Image,
-  Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
+  TouchableOpacity,
+  Switch,
+  ScrollView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { FontAwesome, MaterialIcons, Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import * as ImagePicker from "expo-image-picker";
 
-// Example of user data from backend or persistent storage
-const fetchUserData = async () => ({
-  name: 'Mark Emmanuel',
-  email: 'markemmanuel@example.com',
-  subscription: 'Standard', // Options: Basic, Standard, Premium
-  profilePicture: null, // Placeholder for profile picture
-});
-
-export default function AccountPage() {
+const UserProfile = ({ name = "Jack Frost", email = "jackfrost@gmail.com" }) => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      const data = await fetchUserData();
-      setUser(data);
-      setEditedUser(data);
-    };
-    loadUserData();
-  }, []);
+  const toggleTheme = () => setDarkMode(!darkMode);
 
-  const handleEditToggle = () => {
-    if (user.subscription === 'Basic') {
-      Alert.alert(
-        'Upgrade Required',
-        'Only Standard or Premium users can edit their profiles.'
-      );
-      return;
-    }
-    setIsEditing(!isEditing);
-  };
+  const themeStyles = darkMode
+    ? {
+        container: { backgroundColor: "#121212" },
+        text: { color: "#ffffff" },
+        menu: { backgroundColor: "#1e1e1e" },
+        menuBorder: { borderBottomColor: "#333" },
+      }
+    : {
+        container: { backgroundColor: "#F5F5F5" },
+        text: { color: "#333333" },
+        menu: { backgroundColor: "#ffffff" },
+        menuBorder: { borderBottomColor: "#eee" },
+      };
 
-  const handleSave = async () => {
-    if (!/\S+@\S+\.\S+/.test(editedUser.email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
-      return;
-    }
-    if (editedUser.name.trim().length < 2) {
-      Alert.alert('Invalid Name', 'Name should be at least 2 characters long.');
-      return;
-    }
-
-    setUser(editedUser);
-    setIsEditing(false);
-
-    // Save updated user info to backend or local storage here
-    Alert.alert('Profile Updated', 'Your profile has been successfully updated.');
-  };
-
+  // Function to pick an image
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
@@ -71,136 +50,165 @@ export default function AccountPage() {
     });
 
     if (!result.canceled) {
-      setEditedUser({ ...editedUser, profilePicture: result.assets[0].uri });
+      setProfileImage(result.assets[0].uri);
     }
   };
 
-  if (!user) return <Text>Loading...</Text>;
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>User Account</Text>
+    <ScrollView contentContainerStyle={[styles.container, themeStyles.container]}>
+      {/* Theme Toggle */}
+      <View style={styles.themeToggle}>
+        <Text style={[styles.themeText, themeStyles.text]}>
+          {darkMode ? "Dark Mode" : "Light Mode"}
+        </Text>
+        <Switch value={darkMode} onValueChange={toggleTheme} />
+      </View>
 
-      <TouchableOpacity onPress={pickImage}>
-        <Image
-          source={
-            editedUser.profilePicture
-              ? { uri: editedUser.profilePicture }
-              : require('../assets/images/profile-placeholder.png')
-          }
-          style={styles.profilePicture}
-        />
-        {isEditing && <Text style={styles.changePictureText}>Change Picture</Text>}
-      </TouchableOpacity>
-
-      <Text style={styles.label}>Name</Text>
-      {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={editedUser.name}
-          onChangeText={(text) => setEditedUser({ ...editedUser, name: text })}
-        />
-      ) : (
-        <Text style={styles.text}>{user.name}</Text>
-      )}
-
-      <Text style={styles.label}>Email</Text>
-      {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={editedUser.email}
-          onChangeText={(text) => setEditedUser({ ...editedUser, email: text })}
-        />
-      ) : (
-        <Text style={styles.text}>{user.email}</Text>
-      )}
-
-      <Text style={styles.label}>Subscription</Text>
-      <Text style={styles.text}>{user.subscription}</Text>
-
-      <TouchableOpacity style={styles.button} onPress={handleEditToggle}>
-        <Text style={styles.buttonText}>{isEditing ? 'Cancel' : 'Edit Profile'}</Text>
-      </TouchableOpacity>
-
-      {isEditing && (
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save Changes</Text>
+      {/* Profile Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={pickImage}>
+          <Image
+            source={{
+              uri: profileImage || "https://via.placeholder.com/150",
+            }}
+            style={styles.profileImage}
+          />
+          <View style={styles.cameraIcon}>
+            <Feather name="camera" size={20} color="black" />
+          </View>
         </TouchableOpacity>
-      )}
+        <Text style={[styles.name, themeStyles.text]}>{name}</Text>
+        <Text style={[styles.email, themeStyles.text]}>{email}</Text>
+      </View>
 
-      <TouchableOpacity
-        onPress={() => router.push('/')}
-        style={styles.linkContainer}
-      >
-        <Text style={styles.linkText}>Back to Home</Text>
-      </TouchableOpacity>
-    </View>
+      {/* Menu Options */}
+      <View style={[styles.menu, themeStyles.menu]}>
+        <TouchableOpacity
+          style={[styles.menuItem, themeStyles.menuBorder]}
+          onPress={() => router.push("../edit-profile")}
+        >
+          <FontAwesome name="edit" size={20} color="#FF6D6D" />
+          <Text style={[styles.menuText, themeStyles.text]}>Edit Profile</Text>
+          <Feather name="chevron-right" size={20} color="#ccc" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuItem, themeStyles.menuBorder]}
+          onPress={() => router.push("../analytics")}
+        >
+          <MaterialIcons name="bar-chart" size={20} color="#6D83FF" />
+          <Text style={[styles.menuText, themeStyles.text]}>My Stats</Text>
+          <Feather name="chevron-right" size={20} color="#ccc" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuItem, themeStyles.menuBorder]}
+          onPress={() => router.push("../SettingsScreen")}
+        >
+          <MaterialIcons name="settings" size={20} color="#FDCB6E" />
+          <Text style={[styles.menuText, themeStyles.text]}>Settings</Text>
+          <Feather name="chevron-right" size={20} color="#ccc" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuItem, themeStyles.menuBorder]}
+          onPress={() => router.push("../invite-friend")}
+        >
+          <MaterialIcons name="person-add" size={20} color="#55EFC4" />
+          <Text style={[styles.menuText, themeStyles.text]}>Invite a Friend</Text>
+          <Feather name="chevron-right" size={20} color="#ccc" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Logout Button */}
+      <LinearGradient colors={["#FF6D6D", "#FF8E53"]} style={styles.logoutButton}>
+        <TouchableOpacity onPress={() => router.push("../SignUpScreen")}>
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+      </LinearGradient>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#967575',
-    padding: 20,
+    flexGrow: 1,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFF',
+  themeToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
     marginBottom: 20,
   },
-  profilePicture: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 10,
-    backgroundColor: '#ccc',
+  themeText: {
+    fontSize: 16,
   },
-  changePictureText: {
-    color: '#FFF',
-    fontSize: 14,
+  header: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: "#FF6D6D",
+    marginBottom: 10,
+  },
+  cameraIcon: {
+    position: "absolute",
+    bottom: 5,
+    right: 5,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 5,
+    elevation: 2,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  email: {
+    fontSize: 16,
     marginTop: 5,
   },
-  label: {
+  menu: {
+    width: "100%",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 15,
+  },
+  menuText: {
     fontSize: 16,
-    color: '#FFF',
-    marginTop: 10,
+    flex: 1,
+    marginLeft: 10,
   },
-  text: {
-    fontSize: 18,
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  input: {
-    width: '80%',
-    backgroundColor: '#FFF',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: '#341111',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  saveButton: {
-    backgroundColor: '#228B22',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 16,
-  },
-  linkContainer: {
+  logoutButton: {
     marginTop: 20,
+    borderRadius: 25,
+    paddingVertical: 15,
+    width: "100%",
+    alignItems: "center",
   },
-  linkText: {
-    color: '#FFF',
-    textDecorationLine: 'underline',
+  logoutText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
+
+export default UserProfile;

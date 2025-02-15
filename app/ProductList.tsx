@@ -77,7 +77,7 @@ export default function ProductListScreen() {
         </TouchableOpacity>
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            onPress={() => router.push(`/EditProduct/${item.id}`)} // Navigate to Edit Screen
+            onPress={() => router.push(`../EditProduct/${item.id}`)} // Navigate to Edit Screen
             style={styles.editButton}>
             <Text style={styles.buttonText}>Edit</Text>
           </TouchableOpacity>

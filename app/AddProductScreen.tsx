@@ -221,7 +221,7 @@ export default function AddProductScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 20, backgroundColor: '#4E1A1A' },
+  container: { flexGrow: 1, padding: 20, backgroundColor: '#1C1C1E' },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   categoryIcon: { width: 40, height: 40, marginBottom: 5 },
   categoryText: { color: '#fff', fontSize: 12 },
   submitButton: {
-    backgroundColor: '#FFD700',
+    backgroundColor: '#FFA500',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',

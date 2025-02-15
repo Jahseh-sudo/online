@@ -33,15 +33,15 @@ export default function SettingsScreen() {
       <ScrollView style={styles.settingsContainer}>
         <Text style={styles.sectionTitle}>GENERAL SETTINGS</Text>
         
-        <SettingItem label="Change Password" icon="lock-outline" onPress={() => router.push('../ChangePasswordScreen')} />
         <SettingItem label="Account" icon="account-circle" onPress={() => router.push('../account')} />
+        <SettingItem label="Analytics" icon="payment" onPress={() => router.push('../analytics')} />
         <SettingItem label="Payments and Subscription" icon="payment" onPress={() => router.push('../payment')} />
-        <SettingItem label="Appearance" icon="visibility" onPress={() => router.push('../AppearanceScreen')} />
         <SettingItem label="Notifications" icon="notifications" onPress={() => router.push('../NotificationScreen')} />
         <SettingItem label="Help and Call Center" icon="support-agent" onPress={() => router.push('../help-and-call-center')} />
         <SettingItem label="About" icon="info-outline" onPress={() => router.push('../about')} />
         <SettingItem label="Log Out" icon="logout" isDestructive onPress={handleLogout} />
         <SettingItem label="Support and Gifting" icon="redeem" onPress={() => router.push('../support')} />
+        <SettingItem label="Follow us" icon="info-outline" onPress={() => router.push('../SocialMediaScreen')} />
       </ScrollView>
 
       {/* Footer */}
@@ -74,10 +74,10 @@ function SettingItem({ label, icon, isDestructive, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#967575',
+    backgroundColor: '#1C1C1E',
   },
   darkContainer: {
-    backgroundColor: '#967575',
+    backgroundColor: '#1C1C1E',
   },
   settingsContainer: {
     paddingHorizontal: 20,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 10,
   },
   settingItem: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#FFFFFF',
     marginLeft: 15,
   },
   footer: {

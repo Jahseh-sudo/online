@@ -1,149 +1,248 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { PaystackWebView } from 'react-native-paystack-webview';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 
-export default function SubscriptionPlans() {
-  const [selectedPlan, setSelectedPlan] = useState(null);
+const plans = [
+  {
+    id: "1",
+    title: "Basic Plan",
+    priceMonthly: "₦0.00",
+    priceYearly: "₦0.00",
+    benefits: ["Limited Access", "No Priority Support"],
+    gradient: ["#DCE6FF", "#F5F5F5"],
+  },
+  {
+    id: "2",
+    title: "Standard Plan",
+    priceMonthly: "₦1,500",
+    priceYearly: "₦15,000",
+    benefits: [
+      "Access to All Features",
+      "Priority Support",
+      "Monthly Subscription",
+    ],
+    gradient: ["#6D83FF", "#88A7FF"],
+  },
+  {
+    id: "3",
+    title: "Premium Plan",
+    priceMonthly: "₦3,000",
+    priceYearly: "₦30,000",
+    benefits: [
+      "Access to Premium Features",
+      "Priority Support",
+      "Monthly & Yearly Subscriptions",
+      "Exclusive Perks",
+    ],
+    gradient: ["#FFD700", "#FFA500"],
+  },
+];
 
-  const handleSubscribe = (plan, price) => {
-    setSelectedPlan({
-      plan,
-      amount: parseFloat(price) * 100, // Convert to kobo for Paystack
-      email: 'user@example.com', // Replace with actual user's email
-    });
-  };
+const SubscriptionPlan = () => {
+  const [billingCycle, setBillingCycle] = useState("monthly"); // monthly or yearly
+  const router = useRouter();
 
-  const onSuccess = (res) => {
-    console.log('Payment successful:', res);
-    alert('Payment successful! Your plan has been activated.');
-    setSelectedPlan(null); // Reset selected plan after successful payment
-  };
-
-  const onCancel = () => {
-    alert('Payment was canceled.');
-    setSelectedPlan(null); // Reset selected plan after canceled payment
-  };
+  const renderPlanCard = ({ item }) => (
+    <LinearGradient
+      colors={item.gradient}
+      style={styles.planCard}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <Text style={styles.planTitle}>{item.title}</Text>
+      <Text style={styles.planPrice}>
+        {billingCycle === "monthly" ? item.priceMonthly : item.priceYearly}{" "}
+        <Text style={styles.billingCycle}>
+          {billingCycle === "monthly" ? "/month" : "/year"}
+        </Text>
+      </Text>
+      <View style={styles.benefitsContainer}>
+        {item.benefits.map((benefit, index) => (
+          <View key={index} style={styles.benefitItem}>
+            <FontAwesome name="check-circle" size={18} color="#4CAF50" />
+            <Text style={styles.benefitText}>{benefit}</Text>
+          </View>
+        ))}
+      </View>
+      <TouchableOpacity
+        style={styles.subscribeButton}
+        onPress={() =>
+          router.push({
+            pathname: "../paymentoption",
+            params: {
+              planTitle: item.title,
+              planPrice: billingCycle === "monthly" ? item.priceMonthly : item.priceYearly,
+            },
+          })
+        }
+      >
+        <Text style={styles.subscribeButtonText}>Choose Plan</Text>
+      </TouchableOpacity>
+    </LinearGradient>
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* BASIC Plan */}
-      <View style={[styles.planCard, styles.basicCard]}>
-        <Text style={styles.planTitle}>BASIC (FREE)</Text>
-        <Text style={styles.price}>N0.00</Text>
-        <Text style={styles.planFeature}>- Limited listings (5-10)</Text>
-        <Text style={styles.planFeature}>- Standard visibility</Text>
-        <Text style={styles.planFeature}>- Limited customer support</Text>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Choose Your Plan</Text>
+        <Text style={styles.subHeaderText}>
+          Select a subscription plan that works best for you.
+        </Text>
+      </View>
+
+      {/* Billing Cycle Toggle */}
+      <View style={styles.billingToggle}>
         <TouchableOpacity
-          style={styles.subscribeButton}
-          onPress={() => alert('You have selected the BASIC plan.')}
+          style={[
+            styles.billingOption,
+            billingCycle === "monthly" && styles.selectedOption,
+          ]}
+          onPress={() => setBillingCycle("monthly")}
         >
-          <Text style={styles.buttonText}>Select</Text>
+          <Text
+            style={[
+              styles.billingOptionText,
+              billingCycle === "monthly" && styles.selectedText,
+            ]}
+          >
+            Monthly
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.billingOption,
+            billingCycle === "yearly" && styles.selectedOption,
+          ]}
+          onPress={() => setBillingCycle("yearly")}
+        >
+          <Text
+            style={[
+              styles.billingOptionText,
+              billingCycle === "yearly" && styles.selectedText,
+            ]}
+          >
+            Yearly
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* STANDARD Plan */}
-      <View style={[styles.planCard, styles.standardCard]}>
-        <Text style={styles.planTitle}>STANDARD</Text>
-        <Text style={styles.price}>
-          N2,500.00 <Text style={styles.period}>Per month</Text>
-        </Text>
-        <Text style={styles.planFeature}>- Unlimited listings</Text>
-        <Text style={styles.planFeature}>
-          - Enhanced visibility (featured listings)
-        </Text>
-        <Text style={styles.planFeature}>- Priority customer support</Text>
-        <TouchableOpacity
-          style={styles.subscribeButton}
-          onPress={() => handleSubscribe('STANDARD', '2500.00')}
-        >
-          <Text style={styles.buttonText}>Subscribe</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* PREMIUM Plan */}
-      <View style={[styles.planCard, styles.premiumCard]}>
-        <Text style={styles.planTitle}>PREMIUM</Text>
-        <Text style={styles.price}>
-          N5,000.00 <Text style={styles.period}>Per month</Text>
-        </Text>
-        <Text style={styles.planFeature}>- All Standard features</Text>
-        <Text style={styles.planFeature}>
-          - Additional storage for product images
-        </Text>
-        <TouchableOpacity
-          style={styles.subscribeButton}
-          onPress={() => handleSubscribe('PREMIUM', '5000.00')}
-        >
-          <Text style={styles.buttonText}>Subscribe</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Paystack WebView */}
-      {selectedPlan && (
-        <PaystackWebView
-          paystackKey="your_paystack_public_key" // Replace with your Paystack public key
-          amount={selectedPlan.amount}
-          billingEmail={selectedPlan.email}
-          activityIndicatorColor="green"
-          onSuccess={onSuccess}
-          onCancel={onCancel}
-          autoStart={true}
-        />
-      )}
-    </ScrollView>
+      {/* Subscription Plans */}
+      <FlatList
+        data={plans}
+        renderItem={renderPlanCard}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.planList}
+      />
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
     padding: 20,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#6D83FF",
+  },
+  subHeaderText: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 5,
+  },
+  billingToggle: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  billingOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 20,
+    marginHorizontal: 5,
+  },
+  selectedOption: {
+    backgroundColor: "#6D83FF",
+  },
+  billingOptionText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  selectedText: {
+    color: "#FFF",
+  },
+  planList: {
+    paddingBottom: 20,
   },
   planCard: {
-    marginVertical: 10,
+    borderRadius: 15,
     padding: 20,
-    borderRadius: 10,
-    shadowOpacity: 0.3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-  },
-  basicCard: {
-    backgroundColor: '#d9d9d9',
-  },
-  standardCard: {
-    backgroundColor: '#ffe599',
-  },
-  premiumCard: {
-    backgroundColor: '#ff9999',
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
   },
   planTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  price: {
     fontSize: 18,
-    color: '#555',
-    marginVertical: 10,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
   },
-  period: {
-    fontSize: 14,
-    color: '#888',
+  planPrice: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#6D83FF",
   },
-  planFeature: {
+  billingCycle: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: "normal",
+    color: "#999",
+  },
+  benefitsContainer: {
+    marginTop: 15,
+    marginBottom: 20,
+  },
+  benefitItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  benefitText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: "#555",
   },
   subscribeButton: {
-    backgroundColor: '#007aff',
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 5,
+    backgroundColor: "#6D83FF",
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  buttonText: {
-    color: 'white',
+  subscribeButtonText: {
     fontSize: 16,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: "#FFF",
   },
 });
+
+export default SubscriptionPlan;
