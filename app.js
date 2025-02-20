@@ -10,12 +10,24 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// **Load Environment Variables**
+const PORT = process.env.PORT || 5000;
+const DB_HOST = process.env.DB_HOST;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+const DB_NAME = process.env.DB_NAME;
+
+if (!DB_HOST || !DB_USER || !DB_PASSWORD || !DB_NAME) {
+  console.error("❌ Missing required environment variables.");
+  process.exit(1);
+}
+
 // **MySQL Database Connection**
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -58,7 +70,6 @@ app.use("*", (req, res) => {
 });
 
 // **Start the Server**
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
